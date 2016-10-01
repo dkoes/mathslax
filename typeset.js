@@ -1,4 +1,4 @@
-var MathJax = require('MathJax-node/lib/mj-single.js');
+var MathJax = require('mathjax-node/lib/mj-single.js');
 var _ = require('underscore');
 var Q = require('q');
 var fs = require('fs');
@@ -24,7 +24,7 @@ var extractRawMath = function(text, prefix) {
 var renderMath = function(mathObject, parseOptions) {
   var defaultOptions = {
     math: mathObject.input,
-    format: 'AsciiMath',
+    format: 'TeX',
     png: true,
     dpi: 600,
     font: 'TeX',

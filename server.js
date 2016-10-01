@@ -5,20 +5,17 @@ var Typeset = require('./typeset.js');
 var util = require('util');
 
 var SERVER = process.env.SERVER || '127.0.0.1';
-var PORT = process.env.PORT || '8080';
+var PORT = process.env.PORT || '9999';
 
 // Install the routes.
 var router = Express.Router();
-router.get('/', function(req, res) {
-  res.json(['Hello', 'World', {underDevelopment: true}]);
-});
-router.post('/typeset', function(req, res) {
+router.post('/', function(req, res) {
   var cd = new Date();
   var requestString = req.body.text;
   var bpr = 'math\\!';
   console.log(cd + ":" + requestString);
   console.log( " going to send "+bpr );
-  var typesetPromise = Typeset.typeset(requestString,bpr);
+  var typesetPromise = Typeset.typeset(requestString,'');
   if (typesetPromise === null) {
     res.send('no text found to typeset');
     res.end(); // Empty 200 response -- no text was found to typeset.
@@ -26,9 +23,10 @@ router.post('/typeset', function(req, res) {
   }
   var promiseSuccess = function(mathObjects) {
     var locals = {'mathObjects': mathObjects,
-                  'serverAddress': util.format('http://%s:%s/', SERVER, PORT)};
+                  'serverAddress': util.format('http://bits.csb.pitt.edu/mathslax/')};
     var htmlResult = Jade.renderFile('./views/slack-response.jade', locals);
-    res.json({'text' : htmlResult});
+    res.json({'text' : requestString,'response_type':'in_channel',"attachments": [
+       {"image_url": htmlResult}]});
     res.end();
   };
   var promiseError = function(error) {
@@ -49,7 +47,7 @@ router.post('/slashtypeset', function(req, res) {
   }
   var promiseSuccess = function(mathObjects) {
     var locals = {'mathObjects': mathObjects,
-                  'serverAddress': util.format('http://%s:%s/', SERVER, PORT)};
+                  'serverAddress': util.format('http://bits.csb.pitt.edu/mathslax/')};
     var htmlResult = Jade.renderFile('./views/slack-slash-response.jade', locals);
     res.send(htmlResult);
     res.end();
